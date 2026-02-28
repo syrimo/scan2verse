@@ -1,0 +1,166 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 210 100% 23%; /* #074476 */
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 0 82% 59%; /* #ff3131 */
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 210 100% 23%; /* #074476 */
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 210 100% 23%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 210 100% 23%;
+
+    /* Brand specific colors */
+    --brand-primary: 210 100% 23%; /* #074476 */
+    --brand-secondary: 0 82% 59%; /* #ff3131 */
+    --brand-primary-light: 210 60% 35%;
+    --brand-primary-dark: 210 100% 15%;
+    --brand-secondary-light: 0 82% 70%;
+    --brand-secondary-dark: 0 82% 45%;
+  }
+
+  /* Dark theme temporarily disabled - forcing light theme only */
+  /*
+  .dark {
+    --background: 210 100% 4%;
+    --foreground: 210 40% 98%;
+
+    --card: 210 90% 6%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 210 90% 6%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 60% 50%;
+    --primary-foreground: 210 100% 4%;
+
+    --secondary: 210 60% 12%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 210 60% 12%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 0 82% 65%;
+    --accent-foreground: 210 100% 4%;
+
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 210 60% 15%;
+    --input: 210 60% 15%;
+    --ring: 210 60% 50%;
+    
+    --sidebar-background: 210 100% 6%;
+    --sidebar-foreground: 210 40% 95%;
+    --sidebar-primary: 210 60% 50%;
+    --sidebar-primary-foreground: 210 100% 4%;
+    --sidebar-accent: 210 50% 10%;
+    --sidebar-accent-foreground: 210 40% 95%;
+    --sidebar-border: 210 50% 15%;
+    --sidebar-ring: 210 60% 50%;
+  }
+  */
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    /* Force light theme - override any dark theme detection */
+    background-color: white !important;
+    color: hsl(222.2 84% 4.9%) !important; /* Dark gray text */
+  }
+
+  /* Ensure no dark class can be applied */
+  html.dark,
+  body.dark,
+  .dark {
+    /* Override any dark theme styles */
+    background-color: white !important;
+    color: hsl(222.2 84% 4.9%) !important;
+  }
+}
+
+/* Custom animations for Scan2Verse */
+@keyframes scale-in {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in 0.6s ease-out;
+}
+
+/* Glassmorphism utilities */
+.glass-morphism {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Brand color utilities */
+.brand-primary {
+  color: hsl(var(--brand-primary));
+}
+
+.brand-secondary {
+  color: hsl(var(--brand-secondary));
+}
+
+.bg-brand-primary {
+  background-color: hsl(var(--brand-primary));
+}
+
+.bg-brand-secondary {
+  background-color: hsl(var(--brand-secondary));
+}
+
+.border-brand-primary {
+  border-color: hsl(var(--brand-primary));
+}
+
+.border-brand-secondary {
+  border-color: hsl(var(--brand-secondary));
+}
