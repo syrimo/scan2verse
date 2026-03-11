@@ -1,4 +1,4 @@
-import { ChartBar, Brain, Heart, Briefcase, TrendingUp, Calendar, LogOut, User, Camera, BarChart3, Images, Crown, Smartphone, Activity } from "lucide-react";
+import { ChartBar, Brain, LogOut, User, Camera, BarChart3, Images, Activity } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -114,7 +114,6 @@ const DashboardContent = ({ user, signOut, navigate }: any) => {
   };
 
   const isPro = isProUser(profileData);
-  const profileLoaded = profileData !== null || (!userDataLoading && !hasData);
   const isStillLoading = userDataLoading && !hasData;
 
   useEffect(() => {
@@ -133,42 +132,6 @@ const DashboardContent = ({ user, signOut, navigate }: any) => {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-muted-foreground">Loading your dashboard...</p>
           <p className="text-muted-foreground/70 text-sm mt-2">This should only take a moment</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (profileLoaded && !isPro) {
-    return (
-      <div className="min-h-screen bg-background text-foreground font-sans flex items-center justify-center px-6">
-        <div className="max-w-md w-full text-center">
-          <div className="bg-card border border-border rounded-2xl p-10">
-            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Crown className="w-8 h-8 text-primary" />
-            </div>
-            <h2 className="text-2xl font-bold text-foreground mb-3">Pro Feature</h2>
-            <p className="text-muted-foreground mb-6">
-              The web dashboard is available for <span className="text-primary font-semibold">Scan2Verse Pro</span> subscribers. Upgrade from the mobile app to unlock access.
-            </p>
-            <div className="bg-muted/50 rounded-xl p-4 mb-6 text-left space-y-2">
-              <p className="text-sm font-medium text-foreground">Included with Pro:</p>
-              <p className="text-sm text-muted-foreground">✓ Web dashboard access</p>
-              <p className="text-sm text-muted-foreground">✓ Cloud sync & analytics</p>
-              <p className="text-sm text-muted-foreground">✓ Mental health trends</p>
-              <p className="text-sm text-muted-foreground">✓ Data export</p>
-            </div>
-            <div className="flex flex-col gap-3">
-              <a href="https://apps.apple.com/app/scan2eat/id6504068539" target="_blank" rel="noopener noreferrer">
-                <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
-                  <Smartphone className="w-4 h-4 mr-2" />
-                  Upgrade in Mobile App
-                </Button>
-              </a>
-              <Button variant="ghost" className="text-muted-foreground" onClick={handleSignOut}>
-                Sign out
-              </Button>
-            </div>
-          </div>
         </div>
       </div>
     );
