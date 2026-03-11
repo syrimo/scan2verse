@@ -59,6 +59,43 @@ export class DataSyncService {
   }
 
   /**
+   * Sync mental health assessment from scan2mind mobile app
+   */
+  static async syncMindAssessment(userId: string, assessmentData: any) {
+    try {
+      const { data, error } = await supabase
+        .from('mind_assessments')
+        .insert({
+          user_id: userId,
+          scan_type: assessmentData.scan_type,
+          phq9_scores: assessmentData.phq9_scores,
+          phq9_total: assessmentData.phq9_total,
+          phq9_severity: assessmentData.phq9_severity,
+          gad7_scores: assessmentData.gad7_scores,
+          gad7_total: assessmentData.gad7_total,
+          gad7_severity: assessmentData.gad7_severity,
+          dass21_scores: assessmentData.dass21_scores,
+          dass21_depression: assessmentData.dass21_depression,
+          dass21_anxiety: assessmentData.dass21_anxiety,
+          dass21_stress: assessmentData.dass21_stress,
+          dass21_depression_severity: assessmentData.dass21_depression_severity,
+          dass21_anxiety_severity: assessmentData.dass21_anxiety_severity,
+          dass21_stress_severity: assessmentData.dass21_stress_severity,
+          overall_risk: assessmentData.overall_risk,
+          language: assessmentData.language || 'ms',
+          duration_seconds: assessmentData.duration_seconds,
+          app_version: assessmentData.app_version,
+        });
+
+      if (error) throw error;
+      return { success: true, data };
+    } catch (error) {
+      console.error('Error syncing mind assessment:', error);
+      return { success: false, error };
+    }
+  }
+
+  /**
    * Get user's data summary for dashboard
    */
   static async getUserDataSummary(userId: string) {

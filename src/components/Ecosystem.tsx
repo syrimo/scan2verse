@@ -55,12 +55,16 @@ const Ecosystem = () => (
           <h3 className="font-bold text-xl mb-2 uppercase tracking-wide">{s.name}</h3>
           <p className="text-md text-white/90">{s.desc}</p>
           <a
-            href="#"
-            className="mt-4 text-sm px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm transition hover:bg-white/20 text-cyan-50 hover-scale"
-            tabIndex={-1}
-            aria-disabled="true"
+            href={s.name === 'scan3eat' ? '/dashboard?tab=scan2eat' : s.name === 'scan2mind' ? '/dashboard?tab=scan2mind' : '#'}
+            className={`mt-4 text-sm px-4 py-2 rounded-full border backdrop-blur-sm transition hover-scale ${
+              s.name === 'scan3eat' || s.name === 'scan2mind'
+                ? 'bg-white/20 border-white/30 text-white hover:bg-white/30'
+                : 'bg-white/10 border-white/20 text-cyan-50 hover:bg-white/20'
+            }`}
+            tabIndex={s.name === 'scan3eat' || s.name === 'scan2mind' ? 0 : -1}
+            aria-disabled={s.name !== 'scan3eat' && s.name !== 'scan2mind'}
           >
-            Coming Soon
+            {s.name === 'scan3eat' || s.name === 'scan2mind' ? 'Open Dashboard' : 'Coming Soon'}
           </a>
         </div>
       ))}

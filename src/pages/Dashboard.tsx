@@ -1,15 +1,17 @@
-import { ChartBar, Brain, Heart, Briefcase, TrendingUp, Calendar, LogOut, User, Camera, BarChart3, Images, Crown, Smartphone } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { ChartBar, Brain, Heart, Briefcase, TrendingUp, Calendar, LogOut, User, Camera, BarChart3, Images, Crown, Smartphone, Activity } from "lucide-react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserData } from "@/hooks/useUserData";
 import { useFoodData } from "@/hooks/useFoodData";
+import { useMentalHealthData, getRiskColor, getRiskLabel } from "@/hooks/useMentalHealthData";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import FoodGallery from "@/components/FoodGallery";
 import NutritionAnalytics from "@/components/NutritionAnalytics";
+import MentalHealthAnalytics from "@/components/MentalHealthAnalytics";
 
 const isProUser = (profile: any): boolean => {
   if (!profile) return false;
@@ -25,7 +27,6 @@ const Dashboard = () => {
   const { user, signOut, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
-  // Castle Security - Guard the entrance
   if (authLoading) {
     return (
       <div className="min-h-screen bg-background text-foreground font-sans flex items-center justify-center">
@@ -46,29 +47,29 @@ const Dashboard = () => {
 };
 
 const DashboardContent = ({ user, signOut, navigate }: any) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeApp = searchParams.get('tab') || 'scan2eat';
+
   const { hasData, loading: userDataLoading } = useUserData();
   const { foods, foodEntries, loading: foodLoading, refreshData } = useFoodData();
+  const { assessments, loading: mindLoading } = useMentalHealthData();
   const [profileData, setProfileData] = useState<any>(null);
   const [avatarError, setAvatarError] = useState(false);
 
-  // Fetch user's profile data for dashboard
   useEffect(() => {
     const fetchProfileData = async () => {
       if (!user) return;
-      
       try {
         const { data: profile } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
           .single();
-        
         setProfileData(profile);
       } catch (error) {
         console.error('Error fetching profile data:', error);
       }
     };
-
     fetchProfileData();
   }, [user]);
 
@@ -84,88 +85,47 @@ const DashboardContent = ({ user, signOut, navigate }: any) => {
   };
 
   const getUserName = () => {
-    // Try profile data first, then user metadata, then email
-    if (profileData?.full_name) {
-      return profileData.full_name;
-    }
-    if (user?.user_metadata?.full_name) {
-      return user.user_metadata.full_name;
-    }
-    if (user?.user_metadata?.name) {
-      return user.user_metadata.name;
-    }
-    if (user?.email) {
-      return user.email.split('@')[0];
-    }
+    if (profileData?.full_name) return profileData.full_name;
+    if (user?.user_metadata?.full_name) return user.user_metadata.full_name;
+    if (user?.user_metadata?.name) return user.user_metadata.name;
+    if (user?.email) return user.email.split('@')[0];
     return "User";
   };
 
-  const getFirstName = () => {
-    const fullName = getUserName();
-    return fullName.split(' ')[0];
-  };
+  const getFirstName = () => getUserName().split(' ')[0];
 
   const getUserAvatar = () => {
-    // Try profile data first, then user metadata
-    if (profileData?.avatar_url) {
-      return profileData.avatar_url;
-    }
-    if (user?.user_metadata?.avatar_url) {
-      return user.user_metadata.avatar_url;
-    }
-    if (user?.user_metadata?.picture) {
-      return user.user_metadata.picture;
-    }
+    if (profileData?.avatar_url) return profileData.avatar_url;
+    if (user?.user_metadata?.avatar_url) return user.user_metadata.avatar_url;
+    if (user?.user_metadata?.picture) return user.user_metadata.picture;
     return null;
   };
 
-  // Reset avatar error when user data changes
-  useEffect(() => {
-    setAvatarError(false);
-  }, [user, profileData]);
+  useEffect(() => { setAvatarError(false); }, [user, profileData]);
 
-  // Avatar component with proper fallback
   const AvatarDisplay = ({ className = "w-8 h-8" }: { className?: string }) => {
     const avatarUrl = getUserAvatar();
-    
     if (!avatarUrl || avatarError) {
       return <User className={`${className.replace('w-8 h-8', 'w-5 h-5')} text-muted-foreground`} />;
     }
-    
     return (
-      <img
-        src={avatarUrl}
-        alt="Profile"
-        className={`${className} rounded-full object-cover`}
-        onError={() => setAvatarError(true)}
-      />
+      <img src={avatarUrl} alt="Profile" className={`${className} rounded-full object-cover`} onError={() => setAvatarError(true)} />
     );
   };
 
-  // Pro subscription gate
   const isPro = isProUser(profileData);
   const profileLoaded = profileData !== null || (!userDataLoading && !hasData);
-
-  // Castle Security - Don't wait forever for data loading
   const isStillLoading = userDataLoading && !hasData;
-  
-  // Show loading only for a reasonable time, then show dashboard anyway
+
   useEffect(() => {
     if (isStillLoading) {
       const timeout = setTimeout(() => {
-        // Force show dashboard after 5 seconds even if still loading
         console.log("Loading timeout reached, showing dashboard anyway");
       }, 5000);
-      
       return () => clearTimeout(timeout);
     }
   }, [isStillLoading]);
 
-  // Note: Mobile onboarding is now handled at route level via AuthCallback
-  // Users without profile data will be redirected to /mobile-onboarding
-  // Dashboard should only show for users with actual profile data
-
-  // Show loading state only briefly
   if (isStillLoading) {
     return (
       <div className="min-h-screen bg-background text-foreground font-sans flex items-center justify-center">
@@ -178,7 +138,6 @@ const DashboardContent = ({ user, signOut, navigate }: any) => {
     );
   }
 
-  // Pro gate - show upgrade wall for non-Pro users
   if (profileLoaded && !isPro) {
     return (
       <div className="min-h-screen bg-background text-foreground font-sans flex items-center justify-center px-6">
@@ -189,21 +148,17 @@ const DashboardContent = ({ user, signOut, navigate }: any) => {
             </div>
             <h2 className="text-2xl font-bold text-foreground mb-3">Pro Feature</h2>
             <p className="text-muted-foreground mb-6">
-              The web dashboard is available for <span className="text-primary font-semibold">Scan2Eat Pro</span> subscribers. Upgrade from the mobile app to unlock access.
+              The web dashboard is available for <span className="text-primary font-semibold">Scan2Verse Pro</span> subscribers. Upgrade from the mobile app to unlock access.
             </p>
             <div className="bg-muted/50 rounded-xl p-4 mb-6 text-left space-y-2">
               <p className="text-sm font-medium text-foreground">Included with Pro:</p>
               <p className="text-sm text-muted-foreground">✓ Web dashboard access</p>
-              <p className="text-sm text-muted-foreground">✓ Cloud sync & food photo gallery</p>
-              <p className="text-sm text-muted-foreground">✓ Advanced nutrition analytics</p>
+              <p className="text-sm text-muted-foreground">✓ Cloud sync & analytics</p>
+              <p className="text-sm text-muted-foreground">✓ Mental health trends</p>
               <p className="text-sm text-muted-foreground">✓ Data export</p>
             </div>
             <div className="flex flex-col gap-3">
-              <a
-                href="https://apps.apple.com/app/scan2eat/id6504068539"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href="https://apps.apple.com/app/scan2eat/id6504068539" target="_blank" rel="noopener noreferrer">
                 <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
                   <Smartphone className="w-4 h-4 mr-2" />
                   Upgrade in Mobile App
@@ -219,7 +174,9 @@ const DashboardContent = ({ user, signOut, navigate }: any) => {
     );
   }
 
-  // Main Dashboard - Show even if some data is still loading
+  // Latest risk for overview card
+  const latestAssessment = assessments[0];
+
   return (
     <div className="min-h-screen bg-background text-foreground font-sans">
       {/* Header */}
@@ -227,11 +184,7 @@ const DashboardContent = ({ user, signOut, navigate }: any) => {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link to="/">
-              <img
-                src="/images/scan2verse_textlogo.png"
-                alt="Scan2Verse Logo"
-                className="w-32 h-8 object-contain"
-              />
+              <img src="/images/scan2verse_textlogo.png" alt="Scan2Verse Logo" className="w-32 h-8 object-contain" />
             </Link>
             <h1 className="text-xl font-bold text-primary">Dashboard</h1>
           </div>
@@ -240,12 +193,7 @@ const DashboardContent = ({ user, signOut, navigate }: any) => {
               <AvatarDisplay />
               <span className="text-muted-foreground">{getUserName()}</span>
             </Link>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="text-muted-foreground hover:text-foreground"
-              onClick={handleSignOut}
-            >
+            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" onClick={handleSignOut}>
               <LogOut className="w-4 h-4 mr-2" />
               Logout
             </Button>
@@ -260,12 +208,17 @@ const DashboardContent = ({ user, signOut, navigate }: any) => {
           <p className="text-muted-foreground text-lg">Here's your unified data from all connected apps</p>
         </div>
 
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-          {/* Scan2Eat Overview Card */}
-          <div className="bg-card backdrop-blur-xl border border-border rounded-2xl p-6 hover:bg-muted/50 transition-all duration-300">
+        {/* Stats Overview — Multi-App Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          {/* Scan2Eat Overview */}
+          <button
+            onClick={() => setSearchParams({ tab: 'scan2eat' })}
+            className={`bg-card backdrop-blur-xl border rounded-2xl p-6 hover:bg-muted/50 transition-all duration-300 text-left ${
+              activeApp === 'scan2eat' ? 'border-primary ring-1 ring-primary/30' : 'border-border'
+            }`}
+          >
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary to-blue-500 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-lg flex items-center justify-center">
                 <ChartBar className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -275,117 +228,138 @@ const DashboardContent = ({ user, signOut, navigate }: any) => {
             </div>
             <div className="space-y-3">
               <div className="flex justify-between">
+                <span className="text-muted-foreground">Food Entries</span>
+                <span className="text-primary font-semibold">{foodEntries.length}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Unique Foods</span>
+                <span className="text-green-600 font-semibold">{foods.length}</span>
+              </div>
+              <div className="flex justify-between">
                 <span className="text-muted-foreground">Daily Goal</span>
-                <span className="text-primary font-semibold">
-                  {profileData?.calorie_goal || '2,000'} cal
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Protein Goal</span>
-                <span className="text-green-600 font-semibold">
-                  {profileData?.protein_goal || '150'}g
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Current Weight</span>
-                <span className="text-foreground">
-                  {profileData?.weight || '--'}kg
-                </span>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground/70">Goal: {profileData?.goal || 'maintain'}</span>
-                <span className="text-muted-foreground/70">Activity: {profileData?.activity_level || 'moderate'}</span>
+                <span className="text-foreground">{profileData?.calorie_goal || '2,000'} cal</span>
               </div>
             </div>
-          </div>
+          </button>
 
-          {/* Food Data Stats */}
-          <div className="bg-card backdrop-blur-xl border border-border rounded-2xl p-6 hover:bg-muted/50 transition-all duration-300">
+          {/* scan2mind Overview */}
+          <button
+            onClick={() => setSearchParams({ tab: 'scan2mind' })}
+            className={`bg-card backdrop-blur-xl border rounded-2xl p-6 hover:bg-muted/50 transition-all duration-300 text-left ${
+              activeApp === 'scan2mind' ? 'border-fuchsia-500 ring-1 ring-fuchsia-500/30' : 'border-border'
+            }`}
+          >
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
-                <Camera className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 bg-gradient-to-br from-fuchsia-400 to-purple-500 rounded-lg flex items-center justify-center">
+                <Brain className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="font-semibold text-foreground">Food Gallery</h3>
-                <p className="text-muted-foreground text-sm">Scanned Foods</p>
+                <h3 className="font-semibold text-foreground">scan2mind</h3>
+                <p className="text-muted-foreground text-sm">Mental Health</p>
               </div>
             </div>
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Total Photos</span>
-                <span className="text-green-600 font-semibold">
-                  {foodEntries.filter(e => e.food?.image_url).length}
-                </span>
+                <span className="text-muted-foreground">Saringan</span>
+                <span className="text-purple-500 font-semibold">{assessments.length}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Food Entries</span>
-                <span className="text-emerald-600 font-semibold">
-                  {foodEntries.length}
-                </span>
+                <span className="text-muted-foreground">Risiko Terkini</span>
+                {latestAssessment ? (
+                  <span className="font-semibold" style={{ color: getRiskColor(latestAssessment.overall_risk) }}>
+                    {getRiskLabel(latestAssessment.overall_risk)}
+                  </span>
+                ) : (
+                  <span className="text-muted-foreground">-</span>
+                )}
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Unique Foods</span>
+                <span className="text-muted-foreground">PHQ-9</span>
                 <span className="text-foreground">
-                  {foods.length}
+                  {latestAssessment?.phq9_total ?? '-'}
+                  {latestAssessment?.phq9_total != null && <span className="text-muted-foreground">/27</span>}
                 </span>
               </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground/70">Days logged: {new Set(foodEntries.map(e => e.date)).size}</span>
+            </div>
+          </button>
+
+          {/* Coming Soon — Fitness */}
+          <div className="bg-card backdrop-blur-xl border border-border rounded-2xl p-6 opacity-50">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-lg flex items-center justify-center">
+                <Activity className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground">Fitness</h3>
+                <p className="text-muted-foreground text-sm">Coming Soon</p>
               </div>
             </div>
+            <p className="text-muted-foreground text-sm">AI fitness tracking & guidance — coming soon.</p>
           </div>
         </div>
 
-        {/* Scan2eat Dashboard Tabs */}
-        <div className="bg-card backdrop-blur-xl border border-border rounded-2xl p-6 mb-8 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h3 className="text-2xl font-bold text-foreground">Scan2eat Dashboard</h3>
-              <p className="text-muted-foreground">Your nutrition journey visualized</p>
+        {/* App-Specific Dashboard */}
+        {activeApp === 'scan2eat' && (
+          <div className="bg-card backdrop-blur-xl border border-border rounded-2xl p-6 mb-8 shadow-sm">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-2xl font-bold text-foreground">Scan2eat Dashboard</h3>
+                <p className="text-muted-foreground">Your nutrition journey visualized</p>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Camera className="w-4 h-4" />
+                <span>{foodEntries.filter(e => e.food?.image_url).length} photos</span>
+                <span>•</span>
+                <span>{foodEntries.length} entries</span>
+                <span>•</span>
+                <span>{foods.length} foods</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Camera className="w-4 h-4" />
-              <span>{foodEntries.filter(e => e.food?.image_url).length} photos</span>
-              <span>•</span>
-              <span>{foodEntries.length} entries</span>
-              <span>•</span>
-              <span>{foods.length} foods</span>
-            </div>
+
+            <Tabs defaultValue="analytics" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 bg-muted/50 border border-border">
+                <TabsTrigger value="analytics" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-foreground">
+                  <BarChart3 className="w-4 h-4 mr-2" />
+                  Analytics
+                </TabsTrigger>
+                <TabsTrigger value="gallery" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-foreground">
+                  <Images className="w-4 h-4 mr-2" />
+                  Food Gallery
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="analytics" className="mt-6">
+                <NutritionAnalytics foodEntries={foodEntries} userProfile={profileData} />
+              </TabsContent>
+              <TabsContent value="gallery" className="mt-6">
+                <FoodGallery foodEntries={foodEntries} loading={foodLoading} />
+              </TabsContent>
+            </Tabs>
           </div>
+        )}
 
-          <Tabs defaultValue="analytics" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-muted/50 border border-border">
-              <TabsTrigger 
-                value="analytics" 
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-foreground"
-              >
-                <BarChart3 className="w-4 h-4 mr-2" />
-                Analytics
-              </TabsTrigger>
-              <TabsTrigger 
-                value="gallery" 
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-foreground"
-              >
-                <Images className="w-4 h-4 mr-2" />
-                Food Gallery
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="analytics" className="mt-6">
-              <NutritionAnalytics 
-                foodEntries={foodEntries} 
-                userProfile={profileData}
-              />
-            </TabsContent>
-
-            <TabsContent value="gallery" className="mt-6">
-              <FoodGallery 
-                foodEntries={foodEntries} 
-                loading={foodLoading}
-              />
-            </TabsContent>
-          </Tabs>
-        </div>
+        {activeApp === 'scan2mind' && (
+          <div className="bg-card backdrop-blur-xl border border-border rounded-2xl p-6 mb-8 shadow-sm">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-2xl font-bold text-foreground">scan2mind Dashboard</h3>
+                <p className="text-muted-foreground">Saringan & analitik kesihatan mental anda</p>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Brain className="w-4 h-4" />
+                <span>{assessments.length} saringan</span>
+                {latestAssessment && (
+                  <>
+                    <span>•</span>
+                    <span style={{ color: getRiskColor(latestAssessment.overall_risk) }}>
+                      {getRiskLabel(latestAssessment.overall_risk)}
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
+            <MentalHealthAnalytics assessments={assessments} />
+          </div>
+        )}
 
         {/* Footer */}
         <div className="text-center py-8 border-t border-border mt-8">

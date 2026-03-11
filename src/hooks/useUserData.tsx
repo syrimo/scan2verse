@@ -40,6 +40,12 @@ export const useUserData = (): UserDataStatus => {
           .select('*', { count: 'exact', head: true })
           .eq('user_id', user.id);
 
+        // Check for mental health assessments
+        const { count: mindCount } = await supabase
+          .from('mind_assessments')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id);
+
         // Check for complete profile (indicates existing Scan2Eat user)
         const { data: profile } = await supabase
           .from('profiles')
@@ -52,19 +58,16 @@ export const useUserData = (): UserDataStatus => {
           .from('training_data')
           .select('*', { count: 'exact', head: true });
 
-        // User has data if they have:
-        // 1. Food entries, OR
-        // 2. Complete profile with goals (from Scan2Eat mobile app)
         const hasCompleteProfile = profile && (
-          profile.age || 
-          profile.weight || 
-          profile.height || 
-          profile.calorie_goal || 
-          profile.activity_level || 
+          profile.age ||
+          profile.weight ||
+          profile.height ||
+          profile.calorie_goal ||
+          profile.activity_level ||
           profile.goal
         );
 
-        const totalEntries = (foodCount || 0) + (trainingCount || 0);
+        const totalEntries = (foodCount || 0) + (trainingCount || 0) + (mindCount || 0);
         const hasData = totalEntries > 0 || hasCompleteProfile;
 
         setDataStatus({
@@ -72,7 +75,7 @@ export const useUserData = (): UserDataStatus => {
           loading: false,
           dataCount: {
             foodEntries: foodCount || 0,
-            mentalHealthEntries: 0, // Will be implemented later
+            mentalHealthEntries: mindCount || 0,
             fitnessEntries: 0, // Will be implemented later
             totalEntries,
           },
