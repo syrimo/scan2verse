@@ -31,3 +31,5 @@ yarn-error.log*
 
 # Lock files (optional - keeping package-lock.json)
 bun.lockb
+.vercel
+.env*.local

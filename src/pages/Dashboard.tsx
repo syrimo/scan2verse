@@ -146,8 +146,11 @@ const DashboardContent = ({ user, signOut, navigate }: any) => {
       <header className="bg-card backdrop-blur-xl border-b border-border px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link to="/">
-              <img src="/images/scan2verse_textlogo.png" alt="Scan2Verse Logo" className="w-32 h-8 object-contain" />
+            <Link to="/" className="flex items-center gap-2">
+              <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-[hsl(263,70%,50%)] flex items-center justify-center">
+                <span className="text-xs font-bold text-white">S</span>
+              </div>
+              <span className="font-bold tracking-tight">scan<span className="text-primary">2</span>verse</span>
             </Link>
             <h1 className="text-xl font-bold text-primary">Dashboard</h1>
           </div>
@@ -326,11 +329,8 @@ const DashboardContent = ({ user, signOut, navigate }: any) => {
 
         {/* Footer */}
         <div className="text-center py-8 border-t border-border mt-8">
-          <p className="text-muted-foreground text-sm mb-2">
-            Made with ❤️ by the Scan2Verse Team
-          </p>
           <p className="text-muted-foreground text-xs">
-            © 2024 Scan2Verse. All rights reserved.
+            © {new Date().getFullYear()} Sutera Hijau Academy · Part of the scan2verse ecosystem
           </p>
         </div>
       </main>
