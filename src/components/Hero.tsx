@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Brain, UtensilsCrossed, Activity, ArrowRight, Sparkles } from "lucide-react";
+import { Brain, UtensilsCrossed, ArrowRight, Sparkles } from "lucide-react";
 
 const apps = [
   {
@@ -19,14 +19,6 @@ const apps = [
     gradient: "from-amber-400 to-orange-500",
     href: "https://eat.scan2verse.com",
     status: "live",
-  },
-  {
-    name: "scan2fit",
-    desc: "Fitness & wellness",
-    icon: Activity,
-    gradient: "from-emerald-400 to-green-500",
-    href: "#",
-    status: "soon",
   },
 ];
 
@@ -103,7 +95,7 @@ const Hero = () => {
         </div>
 
         {/* App cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl w-full">
           {apps.map((app) => (
             <a
               key={app.name}
@@ -123,9 +115,6 @@ const Hero = () => {
                 <p className="font-bold text-foreground">{app.name}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">{app.desc}</p>
               </div>
-              {app.status === "soon" && (
-                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Coming Soon</span>
-              )}
             </a>
           ))}
         </div>
