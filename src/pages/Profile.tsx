@@ -135,12 +135,11 @@ const Profile = () => {
       <header className="bg-card backdrop-blur-xl border-b border-border px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link to="/">
-              <img
-                src="/images/scan2verse_textlogo.png"
-                alt="Scan2Verse Logo"
-                className="w-32 h-8 object-contain"
-              />
+            <Link to="/" className="flex items-center gap-2">
+              <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-[hsl(263,70%,50%)] flex items-center justify-center">
+                <span className="text-xs font-bold text-white">S</span>
+              </div>
+              <span className="font-bold tracking-tight">scan<span className="text-primary">2</span>verse</span>
             </Link>
             <h1 className="text-xl font-bold text-primary">Profile</h1>
           </div>
@@ -329,28 +328,28 @@ const Profile = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-primary/10 rounded-lg p-4 text-center">
                 <p className="text-2xl font-bold text-primary">
-                  {profileData?.calorie_goal || '0'}
+                  {profileData?.calorie_goal || '-'}
                 </p>
                 <p className="text-sm text-muted-foreground">Calories</p>
               </div>
-              
+
               <div className="bg-green-500/10 rounded-lg p-4 text-center">
                 <p className="text-2xl font-bold text-green-600">
-                  {profileData?.protein_goal || '0'}
+                  {profileData?.protein_goal || '-'}
                 </p>
                 <p className="text-sm text-muted-foreground">Protein (g)</p>
               </div>
-              
+
               <div className="bg-blue-500/10 rounded-lg p-4 text-center">
                 <p className="text-2xl font-bold text-blue-600">
-                  {profileData?.carbs_goal || '0'}
+                  {profileData?.carbs_goal || '-'}
                 </p>
                 <p className="text-sm text-muted-foreground">Carbs (g)</p>
               </div>
-              
+
               <div className="bg-orange-500/10 rounded-lg p-4 text-center">
                 <p className="text-2xl font-bold text-orange-600">
-                  {profileData?.fat_goal || '0'}
+                  {profileData?.fat_goal || '-'}
                 </p>
                 <p className="text-sm text-muted-foreground">Fat (g)</p>
               </div>
@@ -370,11 +369,8 @@ const Profile = () => {
 
         {/* Footer */}
         <div className="text-center py-8 border-t border-border mt-8">
-          <p className="text-muted-foreground text-sm mb-2">
-            Made with ❤️ by the Scan2Verse Team
-          </p>
           <p className="text-muted-foreground text-xs">
-            © 2024 Scan2Verse. All rights reserved.
+            © {new Date().getFullYear()} Sutera Hijau Academy · Part of the scan2verse ecosystem
           </p>
         </div>
       </main>

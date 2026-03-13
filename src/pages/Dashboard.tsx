@@ -1,4 +1,4 @@
-import { ChartBar, Brain, LogOut, User, Camera, BarChart3, Images, Activity } from "lucide-react";
+import { ChartBar, Brain, LogOut, User, Camera, BarChart3, Images } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -175,7 +175,7 @@ const DashboardContent = ({ user, signOut, navigate }: any) => {
         </div>
 
         {/* Stats Overview — Multi-App Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
           {/* Scan2Eat Overview */}
           <button
             onClick={() => setSearchParams({ tab: 'scan2eat' })}
@@ -249,19 +249,6 @@ const DashboardContent = ({ user, signOut, navigate }: any) => {
             </div>
           </button>
 
-          {/* Coming Soon — Fitness */}
-          <div className="bg-card backdrop-blur-xl border border-border rounded-2xl p-6 opacity-50">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-lg flex items-center justify-center">
-                <Activity className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground">Fitness</h3>
-                <p className="text-muted-foreground text-sm">Coming Soon</p>
-              </div>
-            </div>
-            <p className="text-muted-foreground text-sm">AI fitness tracking & guidance — coming soon.</p>
-          </div>
         </div>
 
         {/* App-Specific Dashboard */}
